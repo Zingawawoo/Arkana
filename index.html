@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arkana</title>
+
+  <!-- Cinematic fantasy fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+  <!-- Landing Hero -->
+  <section class="landing">
+    <div class="landing-bg"></div>
+    <div class="landing-overlay"></div>
+
+    <div class="landing-content">
+      <h1 class="title">Arkana</h1>
+      <p class="subtitle">Build your own RPG adventure</p>
+
+      <p class="tagline">
+        Create worlds. Tell stories. Play your imagination.
+      </p>
+
+      <div class="cta-row">
+        <button id="btnBuild" class="btn btn-primary" type="button">
+          Build a World
+        </button>
+
+        <button id="btnPlay" class="btn btn-secondary" type="button">
+          Play a World
+        </button>
+      </div>
+
+      <div class="secondary-row">
+        <button id="btnImport" class="btn btn-outline" type="button">
+          Import World
+        </button>
+
+        <button id="btnExport" class="btn btn-outline" type="button">
+          Export World
+        </button>
+
+        <button id="btnReset" class="btn btn-ghost" type="button">
+          Reset
+        </button>
+
+        <input id="fileImport" type="file" accept="application/json,.json" hidden />
+      </div>
+
+      <div class="world-meta">
+        <div id="worldPreview" class="world-preview">
+          <div class="world-name">Untitled World</div>
+          <div class="world-desc">No description yet.</div>
+        </div>
+
+        <div class="world-stats">
+          <span id="pillAreas" class="pill">0 areas</span>
+          <span id="pillEntities" class="pill">0 entities</span>
+        </div>
+
+        <p id="saveStatus" class="save-status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about-section">
+    <h2>About Arkana</h2>
+    <p>
+      Arkana is a whimsical RPG world-builder. Design a linear adventure across areas,
+      add characters and foes, then play your own storybook RPG — all in your browser.
+    </p>
+
+    <p>
+      Share worlds as JSON files, remix other people’s adventures, and iterate quickly
+      with playtesting.
+    </p>
+  </section>
+
+  <!-- Message Panel (unchanged logic) -->
+  <section class="panel hidden" id="panelMessage">
+    <h3 id="panelTitle">Coming soon</h3>
+    <p id="panelText"></p>
+    <div class="panel-actions">
+      <button id="btnClosePanel" class="btn btn-outline" type="button">
+        Back to Home
+      </button>
+    </div>
+  </section>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

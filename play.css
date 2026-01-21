@@ -1,0 +1,113 @@
+@import url("./style.css");
+
+body {
+  background: #0f1318;
+}
+
+/* ---------------- Layout ---------------- */
+
+.play-root {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background */
+
+.play-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(6px) brightness(0.6);
+  z-index: 0;
+}
+
+/* Main Card */
+
+.play-card {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 760px;
+  min-height: 420px;
+
+  background: rgba(20, 24, 32, 0.85);
+  border-radius: 22px;
+  padding: 26px 30px 24px;
+
+  box-shadow: 0 40px 120px rgba(0,0,0,0.75);
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Header */
+
+.play-header h2 {
+  font-family: "Cinzel", serif;
+  font-size: 26px;
+  margin: 0 0 6px;
+}
+
+.play-header p {
+  margin: 0;
+  color: #a8b0bd;
+  font-size: 15px;
+}
+
+/* Body */
+
+.play-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Dialogue */
+
+.dialogue-name {
+  font-family: "Cinzel", serif;
+  font-size: 20px;
+}
+
+.dialogue-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #e2e6ed;
+}
+
+/* Combat */
+
+.combat-box {
+  display: grid;
+  gap: 12px;
+}
+
+.hp-bar {
+  height: 14px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d9534f, #f0ad4e);
+  width: 100%;
+}
+
+/* Footer */
+
+.play-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

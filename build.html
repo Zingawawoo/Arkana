@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arkana — Build</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./build.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <button id="btnBack" class="btn btn-ghost">← Home</button>
+    <h1 class="title">Build a World</h1>
+  </header>
+
+  <main class="builder-root">
+
+    <!-- Wizard Step: World -->
+    <section class="wizard-card" id="stepWorld">
+
+      <div class="wizard-header">
+        <h2>World Details</h2>
+        <p>Create the setting for your adventure.</p>
+      </div>
+
+      <div class="wizard-body">
+
+        <!-- Left: Form -->
+        <div class="form-panel">
+
+          <label class="field">
+            <span>World Name</span>
+            <input id="inputName" type="text" placeholder="The Shattered Realm" />
+          </label>
+
+          <label class="field">
+            <span>Description</span>
+            <textarea id="inputDescription" rows="4"
+              placeholder="A walled city by the sea, where old magic still lingers..."></textarea>
+          </label>
+
+          <label class="field">
+            <span>Background Image</span>
+            <input id="inputImage" type="file" accept="image/*" />
+          </label>
+
+          <p class="hint">
+            This image will be used as the main backdrop for your world and later in play mode.
+          </p>
+
+        </div>
+
+        <!-- Right: Preview -->
+        <div class="preview-panel">
+
+          <div class="preview-card" id="previewCard">
+            <div class="preview-bg" id="previewBg"></div>
+            <div class="preview-overlay"></div>
+
+            <div class="preview-content">
+              <h3 id="previewName">Untitled World</h3>
+              <p id="previewDescription">No description yet.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="wizard-footer">
+        <span class="save-indicator" id="saveIndicator">Saved</span>
+
+        <button id="btnNext" class="btn btn-primary">
+          Next: Areas →
+        </button>
+      </div>
+
+    </section>
+
+      <!-- Step 2: Areas -->
+  <section class="wizard-card hidden" id="stepAreas">
+
+    <div class="wizard-header">
+      <h2>Areas</h2>
+      <p>Design the linear flow of your adventure.</p>
+    </div>
+
+    <div class="areas-body">
+
+      <!-- Left: Area List -->
+      <div class="areas-list-panel">
+        <button id="btnAddArea" class="btn btn-secondary full">
+          + Add Area
+        </button>
+
+        <div id="areasList" class="areas-list"></div>
+      </div>
+
+
+      <!-- Right: Area Editor -->
+      <div class="area-editor-panel hidden" id="areaEditor">
+
+        <label class="field">
+          <span>Area Name</span>
+          <input id="areaName" type="text" />
+        </label>
+
+        <label class="field">
+          <span>Description</span>
+          <textarea id="areaDescription" rows="4"></textarea>
+        </label>
+
+        <label class="field">
+          <span>Background Image</span>
+          <input id="areaImage" type="file" accept="image/*" />
+        </label>
+
+        <div class="preview-panel">
+          <div class="preview-card small">
+            <div class="preview-bg" id="areaPreviewBg"></div>
+            <div class="preview-overlay"></div>
+            <div class="preview-content">
+              <h3 id="areaPreviewName">Untitled Area</h3>
+              <p id="areaPreviewDescription">No description yet.</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnEditEntities" class="btn btn-primary">
+            Edit Entities →
+        </button>
+
+
+      </div>
+
+    </div>
+
+    <div class="wizard-footer">
+      <button id="btnBackToWorld" class="btn btn-outline">
+        ← Back to World
+      </button>
+      
+    </div>
+    </section>
+
+    <!-- Step 3: Entities -->
+<section class="wizard-card hidden" id="stepEntities">
+
+  <div class="wizard-header">
+    <h2>Entities</h2>
+    <p id="entitiesSubtitle">Design encounters for this area.</p>
+  </div>
+
+  <div class="entities-body">
+
+    <!-- Left: Entity List -->
+    <div class="entities-list-panel">
+
+      <div class="entity-buttons">
+        <button id="btnAddNPC" class="btn btn-secondary">+ NPC</button>
+        <button id="btnAddEnemy" class="btn btn-secondary">+ Enemy</button>
+        <button id="btnAddCheckpoint" class="btn btn-secondary">+ Checkpoint</button>
+      </div>
+
+      <div id="entitiesList" class="entities-list"></div>
+
+    </div>
+
+    <!-- Right: Entity Editor (placeholder for now) -->
+    <div class="entity-editor-panel hidden" id="entityEditor">
+      <p class="hint">Select an entity to edit its details.</p>
+    </div>
+
+  </div>
+
+  <div class="wizard-footer">
+    <button id="btnBackToAreas" class="btn btn-outline">
+      ← Back to Areas
+    </button>
+  </div>
+
+</section>
+
+
+  </main>
+
+  <script type="module" src="./js/build.js"></script>
+</body>
+</html>
