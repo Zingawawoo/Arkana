@@ -1,14 +1,15 @@
 import {
-  loadGameData,
   saveGameData,
   hasSavedGame,
   resetSavedGame,
   exportWorldToFile,
-  importWorldFromFile
-} from "./storage.js";
+  importWorldFromFile,
+  getGameData,
+  setGameData
+} from "./data.js";
 
 /** @type {any} */
-let gameData = loadGameData();
+let gameData = getGameData();
 
 const btnBuild = /** @type {HTMLButtonElement} */ (document.getElementById("btnBuild"));
 const btnPlay = /** @type {HTMLButtonElement} */ (document.getElementById("btnPlay"));
@@ -126,8 +127,9 @@ fileImport.addEventListener("change", async () => {
   const file = fileImport.files[0];
   try {
     const imported = await importWorldFromFile(file);
-    gameData = imported;
-    saveGameData(gameData);
+    setGameData(imported);
+    saveGameData();
+    gameData = getGameData();
     updateHomeUI();
     showPanel("Imported!", "World loaded successfully. You can now export it again or start building on top of it.");
   } catch (err) {
@@ -141,8 +143,9 @@ btnReset.addEventListener("click", () => {
     return;
   }
   resetSavedGame();
-  gameData = loadGameData();
-  saveGameData(gameData);
+  setGameData(null);
+  saveGameData();
+  gameData = getGameData();
   updateHomeUI();
   showPanel("Reset complete", "Your saved world was cleared. You’re back to a fresh Arkana scaffold.");
 });

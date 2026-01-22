@@ -179,6 +179,48 @@ html, body {
   border: 1px solid rgba(255,255,255,0.18);
 }
 
+/* ---------------- Card Styles ---------------- */
+
+.wizard-card {
+  background: rgba(20, 24, 32, 0.75);
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.65);
+}
+
+.play-card {
+  background: rgba(20, 24, 32, 0.85);
+  border-radius: 22px;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.75);
+}
+
+.world-preview {
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.preview-card {
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.7);
+  background: #000;
+}
+
+.entity-editor-panel {
+  background: rgba(0,0,0,0.25);
+  border-radius: 14px;
+}
+
+.area-card {
+  background: rgba(0,0,0,0.35);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.area-card.active {
+  border-color: rgba(214,179,124,0.9);
+  box-shadow: 0 0 0 1px rgba(214,179,124,0.4);
+}
+
 /* ---------------- World Meta ---------------- */
 
 .world-meta {
@@ -189,11 +231,8 @@ html, body {
 }
 
 .world-preview {
-  background: var(--panel);
-  border-radius: 14px;
   padding: 14px 18px;
   max-width: 420px;
-  box-shadow: var(--shadow);
 }
 
 .world-name {
@@ -246,6 +285,92 @@ html, body {
   margin: 0 auto 10px;
   line-height: 1.6;
   color: var(--muted);
+}
+
+/* ---------------- Typography ---------------- */
+
+.wizard-header h2,
+.play-header h2 {
+  font-family: "Cinzel", serif;
+  font-size: 28px;
+  margin: 0 0 4px;
+}
+
+.play-header h2 {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.wizard-header p,
+.play-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.play-header p {
+  font-size: 15px;
+}
+
+.dialogue-name {
+  font-family: "Cinzel", serif;
+  font-size: 20px;
+}
+
+.dialogue-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #e2e6ed;
+}
+
+.preview-content h3,
+.area-card h4 {
+  margin: 0;
+  font-family: "Cinzel", serif;
+  font-size: 16px;
+}
+
+.preview-content h3 {
+  font-size: 22px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+
+.preview-content p,
+.area-card p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #a8b0bd;
+}
+
+.preview-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #d3d8e0;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+}
+
+.field span {
+  font-weight: 600;
+  font-size: 14px;
+  color: #d6dae2;
+}
+
+.field input,
+.field textarea {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #f2f4f8;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: rgba(214,179,124,0.8);
+  box-shadow: 0 0 0 1px rgba(214,179,124,0.4);
 }
 
 /* ---------------- Panel ---------------- */

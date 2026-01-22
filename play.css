@@ -1,9 +1,5 @@
 @import url("./style.css");
 
-body {
-  background: #0f1318;
-}
-
 /* ---------------- Layout ---------------- */
 
 .play-root {
@@ -36,11 +32,7 @@ body {
   max-width: 760px;
   min-height: 420px;
 
-  background: rgba(20, 24, 32, 0.85);
-  border-radius: 22px;
   padding: 26px 30px 24px;
-
-  box-shadow: 0 40px 120px rgba(0,0,0,0.75);
 
   display: flex;
   flex-direction: column;
@@ -48,18 +40,6 @@ body {
 }
 
 /* Header */
-
-.play-header h2 {
-  font-family: "Cinzel", serif;
-  font-size: 26px;
-  margin: 0 0 6px;
-}
-
-.play-header p {
-  margin: 0;
-  color: #a8b0bd;
-  font-size: 15px;
-}
 
 /* Body */
 
@@ -71,17 +51,61 @@ body {
   gap: 14px;
 }
 
-/* Dialogue */
-
-.dialogue-name {
-  font-family: "Cinzel", serif;
-  font-size: 20px;
+.fade-out {
+  opacity: 0;
+  transition: opacity 200ms ease;
 }
 
-.dialogue-text {
-  font-size: 16px;
-  line-height: 1.5;
-  color: #e2e6ed;
+.fade-in {
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+
+@keyframes enemy-hit {
+  0% {
+    box-shadow: 0 0 0 rgba(217, 83, 79, 0);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(217, 83, 79, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(217, 83, 79, 0);
+  }
+}
+
+@keyframes enemy-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes screen-flash {
+  0% { opacity: 0; }
+  40% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.flash-red {
+  animation: enemy-hit 200ms ease;
+}
+
+.shake {
+  animation: enemy-shake 200ms ease;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(90, 10, 10, 0.4);
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.screen-hit::after {
+  animation: screen-flash 200ms ease;
 }
 
 /* Combat */

@@ -1,8 +1,8 @@
-import { loadGameData, saveGameData } from "./storage.js";
+import { getGameData, saveGameData } from "./data.js";
 
 /* ---------------- Data ---------------- */
 
-let gameData = loadGameData();
+let gameData = getGameData();
 
 /* ---------------- Elements ---------------- */
 
@@ -55,6 +55,41 @@ const entitiesSubtitle = document.getElementById("entitiesSubtitle");
 let selectedAreaIndex = null;
 let selectedEntityIndex = null;
 
+let draggedAreaIndex = null;
+let draggedAreaId = null;
+const areaDropLine = document.createElement("div");
+areaDropLine.className = "area-drop-line";
+
+let draggedEntityIndex = null;
+let draggedEntityId = null;
+const entityDropLine = document.createElement("div");
+entityDropLine.className = "entity-drop-line";
+
+const TRANSITION_MS = 200;
+
+/**
+ * @param {HTMLElement} currentStep
+ * @param {HTMLElement} nextStep
+ * @returns {void}
+ */
+function transitionSteps(currentStep, nextStep) {
+  currentStep.classList.remove("fade-in");
+  currentStep.classList.add("fade-out");
+
+  window.setTimeout(() => {
+    currentStep.classList.add("hidden");
+    currentStep.classList.remove("fade-out");
+
+    nextStep.classList.remove("hidden");
+    window.requestAnimationFrame(() => {
+      nextStep.classList.add("fade-in");
+      window.setTimeout(() => {
+        nextStep.classList.remove("fade-in");
+      }, TRANSITION_MS);
+    });
+  }, TRANSITION_MS);
+}
+
 /* ---------------- Navigation ---------------- */
 
 // Home
@@ -65,15 +100,13 @@ btnBack.addEventListener("click", () => {
 
 // World -> Areas
 btnNext.addEventListener("click", () => {
-  stepWorld.classList.add("hidden");
-  stepAreas.classList.remove("hidden");
+  transitionSteps(stepWorld, stepAreas);
   renderAreasList();
 });
 
 // Areas -> World
 btnBackToWorld.addEventListener("click", () => {
-  stepAreas.classList.add("hidden");
-  stepWorld.classList.remove("hidden");
+  transitionSteps(stepAreas, stepWorld);
 });
 
 // Areas -> Entities
@@ -86,8 +119,7 @@ btnEditEntities.addEventListener("click", () => {
   const area = gameData.areas[selectedAreaIndex];
   entitiesSubtitle.textContent = `Entities in "${area.name}"`;
 
-  stepAreas.classList.add("hidden");
-  stepEntities.classList.remove("hidden");
+  transitionSteps(stepAreas, stepEntities);
 
   selectedEntityIndex = null;
   renderEntitiesList();
@@ -96,8 +128,7 @@ btnEditEntities.addEventListener("click", () => {
 
 // Entities -> Areas
 btnBackToAreas.addEventListener("click", () => {
-  stepEntities.classList.add("hidden");
-  stepAreas.classList.remove("hidden");
+  transitionSteps(stepEntities, stepAreas);
 });
 
 /* ---------------- World Init ---------------- */
@@ -184,6 +215,15 @@ function renderAreasList() {
   gameData.areas.forEach((area, index) => {
     const card = document.createElement("div");
     card.className = "area-card" + (index === selectedAreaIndex ? " active" : "");
+    card.dataset.areaId = area.id;
+    card.draggable = true;
+
+    if (area.backgroundImage) {
+      const thumb = document.createElement("div");
+      thumb.className = "area-thumb";
+      thumb.style.backgroundImage = `url(${area.backgroundImage})`;
+      card.appendChild(thumb);
+    }
 
     const title = document.createElement("h4");
     title.textContent = area.name || "Untitled Area";
@@ -217,8 +257,98 @@ function renderAreasList() {
     card.appendChild(info);
     card.appendChild(controls);
     card.addEventListener("click", () => selectArea(index));
+    card.addEventListener("dragstart", (event) => handleAreaDragStart(event, area.id, index, card));
+    card.addEventListener("dragend", handleAreaDragEnd);
 
     areasList.appendChild(card);
+  });
+}
+
+areasList.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  const overCard = event.target.closest(".area-card");
+  const areaCards = Array.from(areasList.querySelectorAll(".area-card"));
+
+  if (!overCard) {
+    areasList.appendChild(areaDropLine);
+    return;
+  }
+
+  const overIndex = areaCards.indexOf(overCard);
+  const rect = overCard.getBoundingClientRect();
+  const before = event.clientY < rect.top + rect.height / 2;
+  const insertIndex = before ? overIndex : overIndex + 1;
+
+  const referenceNode = areasList.children[insertIndex];
+  if (referenceNode === areaDropLine) return;
+
+  if (referenceNode) {
+    areasList.insertBefore(areaDropLine, referenceNode);
+  } else {
+    areasList.appendChild(areaDropLine);
+  }
+});
+
+areasList.addEventListener("dragleave", (event) => {
+  if (!areasList.contains(event.relatedTarget)) {
+    areaDropLine.remove();
+  }
+});
+
+areasList.addEventListener("drop", (event) => {
+  event.preventDefault();
+  if (draggedAreaIndex === null) return;
+
+  const dropIndex = getDropIndex();
+  const areaId = draggedAreaId;
+  areaDropLine.remove();
+
+  if (dropIndex === null || dropIndex === draggedAreaIndex) {
+    resetAreaDragState();
+    return;
+  }
+
+  const [moved] = gameData.areas.splice(draggedAreaIndex, 1);
+  const adjustedIndex = dropIndex > draggedAreaIndex ? dropIndex - 1 : dropIndex;
+  gameData.areas.splice(adjustedIndex, 0, moved);
+
+  if (areaId) {
+    selectedAreaIndex = gameData.areas.findIndex((area) => area.id === areaId);
+  }
+
+  saveGameData(gameData);
+  renderAreasList();
+  resetAreaDragState();
+});
+
+function handleAreaDragStart(event, areaId, index, card) {
+  draggedAreaIndex = index;
+  draggedAreaId = areaId;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", areaId);
+  card.classList.add("dragging");
+}
+
+function handleAreaDragEnd() {
+  resetAreaDragState();
+  areaDropLine.remove();
+  renderAreasList();
+}
+
+function getDropIndex() {
+  if (!areasList.contains(areaDropLine)) {
+    return draggedAreaIndex;
+  }
+  const children = Array.from(areasList.children);
+  const index = children.indexOf(areaDropLine);
+  return index === -1 ? draggedAreaIndex : index;
+}
+
+function resetAreaDragState() {
+  draggedAreaIndex = null;
+  draggedAreaId = null;
+  areasList.querySelectorAll(".area-card.dragging").forEach((card) => {
+    card.classList.remove("dragging");
   });
 }
 
@@ -242,6 +372,49 @@ function selectArea(index) {
 
   renderAreasList();
 }
+
+/* ---------------- Area Handlers ---------------- */
+
+areaName.addEventListener("input", () => {
+  if (selectedAreaIndex === null) return;
+  markSaving();
+  const area = gameData.areas[selectedAreaIndex];
+  area.name = areaName.value;
+  areaPreviewName.textContent = areaName.value || "Untitled Area";
+  saveGameData(gameData);
+  renderAreasList();
+  markSaved();
+});
+
+areaDescription.addEventListener("input", () => {
+  if (selectedAreaIndex === null) return;
+  markSaving();
+  const area = gameData.areas[selectedAreaIndex];
+  area.description = areaDescription.value;
+  areaPreviewDescription.textContent = areaDescription.value || "No description yet.";
+  saveGameData(gameData);
+  renderAreasList();
+  markSaved();
+});
+
+areaImage.addEventListener("change", () => {
+  if (selectedAreaIndex === null) return;
+  if (!areaImage.files.length) return;
+
+  const reader = new FileReader();
+  markSaving();
+
+  reader.onload = () => {
+    const area = gameData.areas[selectedAreaIndex];
+    area.backgroundImage = reader.result;
+    areaPreviewBg.style.backgroundImage = `url(${reader.result})`;
+    saveGameData(gameData);
+    renderAreasList();
+    markSaved();
+  };
+
+  reader.readAsDataURL(areaImage.files[0]);
+});
 
 function moveArea(index, dir) {
   const newIndex = index + dir;
@@ -286,7 +459,7 @@ function createEntity(type) {
       name: "New NPC",
       role: "Villager",
       mood: "Neutral",
-      dialogue: "Hello, traveler.",
+      dialogueLines: ["Hello, traveler."],
       givesQuest: false,
       image: null
     };
@@ -300,6 +473,9 @@ function createEntity(type) {
       hp: 20,
       stamina: 10,
       damage: 5,
+      defense: 0,
+      critChance: 0.1,
+      specialName: "",
       poise: 5,
       aiStyle: "Aggressive",
       loot: "Gold",
@@ -334,6 +510,8 @@ function renderEntitiesList() {
   area.entities.forEach((entity, index) => {
     const card = document.createElement("div");
     card.className = "entity-card" + (index === selectedEntityIndex ? " active" : "");
+    card.dataset.entityId = entity.id;
+    card.draggable = true;
     if (entity.image) {
     const thumb = document.createElement("div");
     thumb.className = "entity-thumb";
@@ -343,7 +521,11 @@ function renderEntitiesList() {
 
 
     const title = document.createElement("h4");
-    title.textContent = `${entity.type.toUpperCase()} — ${entity.name}`;
+    title.textContent = entity.name;
+
+    const badge = document.createElement("span");
+    badge.className = `entity-badge entity-badge-${entity.type}`;
+    badge.textContent = entity.type.toUpperCase();
 
     const desc = document.createElement("p");
 
@@ -352,7 +534,11 @@ function renderEntitiesList() {
     if (entity.type === "checkpoint") desc.textContent = `Respawn point`;
 
     const info = document.createElement("div");
-    info.appendChild(title);
+    const heading = document.createElement("div");
+    heading.className = "entity-heading";
+    heading.appendChild(title);
+    heading.appendChild(badge);
+    info.appendChild(heading);
     info.appendChild(desc);
 
     const controls = document.createElement("div");
@@ -377,8 +563,100 @@ function renderEntitiesList() {
     card.appendChild(info);
     card.appendChild(controls);
     card.addEventListener("click", () => selectEntity(index));
+    card.addEventListener("dragstart", (event) => handleEntityDragStart(event, entity.id, index, card));
+    card.addEventListener("dragend", handleEntityDragEnd);
 
     entitiesList.appendChild(card);
+  });
+}
+
+entitiesList.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  const overCard = event.target.closest(".entity-card");
+  const entityCards = Array.from(entitiesList.querySelectorAll(".entity-card"));
+
+  if (!overCard) {
+    entitiesList.appendChild(entityDropLine);
+    return;
+  }
+
+  const overIndex = entityCards.indexOf(overCard);
+  const rect = overCard.getBoundingClientRect();
+  const before = event.clientY < rect.top + rect.height / 2;
+  const insertIndex = before ? overIndex : overIndex + 1;
+
+  const referenceNode = entitiesList.children[insertIndex];
+  if (referenceNode === entityDropLine) return;
+
+  if (referenceNode) {
+    entitiesList.insertBefore(entityDropLine, referenceNode);
+  } else {
+    entitiesList.appendChild(entityDropLine);
+  }
+});
+
+entitiesList.addEventListener("dragleave", (event) => {
+  if (!entitiesList.contains(event.relatedTarget)) {
+    entityDropLine.remove();
+  }
+});
+
+entitiesList.addEventListener("drop", (event) => {
+  event.preventDefault();
+  if (draggedEntityIndex === null) return;
+
+  const dropIndex = getEntityDropIndex();
+  const entityId = draggedEntityId;
+  entityDropLine.remove();
+
+  if (dropIndex === null || dropIndex === draggedEntityIndex) {
+    resetEntityDragState();
+    return;
+  }
+
+  const area = gameData.areas[selectedAreaIndex];
+  const [moved] = area.entities.splice(draggedEntityIndex, 1);
+  const adjustedIndex = dropIndex > draggedEntityIndex ? dropIndex - 1 : dropIndex;
+  area.entities.splice(adjustedIndex, 0, moved);
+
+  if (entityId) {
+    selectedEntityIndex = area.entities.findIndex((entity) => entity.id === entityId);
+  }
+
+  saveGameData(gameData);
+  renderEntitiesList();
+  renderEntityEditor();
+  resetEntityDragState();
+});
+
+function handleEntityDragStart(event, entityId, index, card) {
+  draggedEntityIndex = index;
+  draggedEntityId = entityId;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", entityId);
+  card.classList.add("dragging");
+}
+
+function handleEntityDragEnd() {
+  resetEntityDragState();
+  entityDropLine.remove();
+  renderEntitiesList();
+}
+
+function getEntityDropIndex() {
+  if (!entitiesList.contains(entityDropLine)) {
+    return draggedEntityIndex;
+  }
+  const children = Array.from(entitiesList.children);
+  const index = children.indexOf(entityDropLine);
+  return index === -1 ? draggedEntityIndex : index;
+}
+
+function resetEntityDragState() {
+  draggedEntityIndex = null;
+  draggedEntityId = null;
+  entitiesList.querySelectorAll(".entity-card.dragging").forEach((card) => {
+    card.classList.remove("dragging");
   });
 }
 
@@ -440,7 +718,7 @@ function renderEntityEditor() {
   if (entity.type === "npc") {
     addField("Role", entity.role, (v) => entity.role = v);
     addField("Mood", entity.mood, (v) => entity.mood = v);
-    addTextarea("Dialogue", entity.dialogue, (v) => entity.dialogue = v);
+    addDialogueEditor("Dialogue", entity.dialogueLines || entity.dialogue || "", (v) => entity.dialogueLines = v);
     addCheckbox("Gives Quest", entity.givesQuest, (v) => entity.givesQuest = v);
     addImageField("Portrait / Image", entity.image, (v) => entity.image = v);
   }
@@ -449,6 +727,9 @@ function renderEntityEditor() {
     addNumber("HP", entity.hp, (v) => entity.hp = v);
     addNumber("Stamina", entity.stamina, (v) => entity.stamina = v);
     addNumber("Damage", entity.damage, (v) => entity.damage = v);
+    addNumber("Defense", entity.defense ?? 0, (v) => entity.defense = v);
+    addNumberFloat("Crit Chance", entity.critChance ?? 0.1, (v) => entity.critChance = v);
+    addField("Special Name", entity.specialName || "", (v) => entity.specialName = v);
     addNumber("Poise", entity.poise, (v) => entity.poise = v);
     addField("AI Style", entity.aiStyle, (v) => entity.aiStyle = v);
     addField("Loot", entity.loot, (v) => entity.loot = v);
@@ -510,6 +791,15 @@ function addTextarea(label, value, onChange) {
   entityEditor.appendChild(wrapper);
 }
 
+function addDialogueEditor(label, value, onChange) {
+  const lines = Array.isArray(value) ? value : String(value).split("\n");
+  const inputValue = lines.join("\n");
+  addTextarea(label, inputValue, (text) => {
+    const nextLines = text.split("\n").map((line) => line.trim());
+    onChange(nextLines);
+  });
+}
+
 function addNumber(label, value, onChange) {
   const wrapper = document.createElement("label");
   wrapper.className = "field";
@@ -523,6 +813,29 @@ function addNumber(label, value, onChange) {
 
   input.addEventListener("input", () => {
     onChange(parseInt(input.value) || 0);
+    saveGameData(gameData);
+    renderEntitiesList();
+  });
+
+  wrapper.appendChild(span);
+  wrapper.appendChild(input);
+  entityEditor.appendChild(wrapper);
+}
+
+function addNumberFloat(label, value, onChange) {
+  const wrapper = document.createElement("label");
+  wrapper.className = "field";
+
+  const span = document.createElement("span");
+  span.textContent = label;
+
+  const input = document.createElement("input");
+  input.type = "number";
+  input.step = "0.01";
+  input.value = value;
+
+  input.addEventListener("input", () => {
+    onChange(parseFloat(input.value) || 0);
     saveGameData(gameData);
     renderEntitiesList();
   });
